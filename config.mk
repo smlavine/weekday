@@ -1,6 +1,5 @@
 # paths
 PREFIX = /usr
-MANPREFIX = $(PREFIX)/share/man
 
 #includes and libs
 INCS = -I$(PREFIX)/include
