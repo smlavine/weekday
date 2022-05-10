@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	}
 
 	for (int i = 1; i < argc; i++) {
-		struct tm tm;
+		struct tm tm = {0};
 		char *temp;
 		int year, month, day;
 		char linebuf[64];
