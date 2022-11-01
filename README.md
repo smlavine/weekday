@@ -7,7 +7,7 @@ with some of the C time library.
 usage: weekday [YYYY-MM-DD]...
 ```
 
-## Installation
+# Installation
 
 To install:
 ```
