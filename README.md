@@ -21,7 +21,7 @@ To uninstall:
 sudo make uninstall
 ```
 
-Feel free to modify ```config.mk``` to fit your local installation
+Feel free to modify `config.mk` to fit your local installation
 needs.
 
 # Copyright
@@ -42,4 +42,4 @@ You should have received a copy of the GNU General Public License
 along with weekday. If not, see <https://www.gnu.org/licenses/>.
 
 Version 3 of the GNU General Public License is distributed with weekday
-in the ```LICENSE``` file.
+in the `LICENSE` file.
