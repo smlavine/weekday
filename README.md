@@ -1,6 +1,7 @@
-# weekday - Print the day of the week
+# [weekday](https://git.sr.ht/~smlavine/weekday)
 
-weekday is a program to print the day of the week of YYYY-MM-DD dates.
+Prints the day of the week. I wrote this mostly to familiarize myself
+with some of the C time library.
 
 ```
 usage: weekday [YYYY-MM-DD]...
