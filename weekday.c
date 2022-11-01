@@ -41,8 +41,10 @@ dayofweek(struct tm *tm)
 
 /**
  * Converts a given "YYYY-MM-DD" date to a struct tm.
+ * Returns 0 on success, 1 on failure.
+ * Prints an error message on failure.
  */
-void
+int
 datetotm(char *date, struct tm *tm)
 {
 	char *temp;
@@ -69,8 +71,7 @@ datetotm(char *date, struct tm *tm)
 	if (year == 0 || month == 0 || day == 0) {
 error:
 		fprintf(stderr, "invalid date '%s'\n", date);
-		usage();
-		exit(EXIT_FAILURE);
+		return 1;
 	}
 
 	tm->tm_year = year - 1900; /* See ctime(3) */
@@ -79,14 +80,17 @@ error:
 
 	if (mktime(tm) == (time_t)-1) {
 		perror("mktime failed");
-		exit(EXIT_FAILURE);
+		return 1;
 	}
+
+	return 0;
 }
 
 int
 main(int argc, char *argv[])
 {
-	int c;
+	int c, ret;
+	struct tm tm = {0};
 
 	while ((c = getopt(argc, argv, "h")) != -1) {
 		switch (c) {
@@ -105,13 +109,17 @@ main(int argc, char *argv[])
 	if (argc == 0) {
 		const time_t t = time(NULL);
 		dayofweek(localtime(&t));
-	} else {
-		struct tm tm = {0};
-		for (int i = 0; i < argc; i++) {
-			datetotm(argv[i], &tm);
+		return EXIT_SUCCESS;
+	}
+
+	ret = EXIT_SUCCESS;
+	for (int i = 0; i < argc; i++) {
+		if (datetotm(argv[i], &tm) == 0) {
 			dayofweek(&tm);
+		} else {
+			ret = EXIT_FAILURE;
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return ret;
 }
