@@ -20,64 +20,97 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 void
 usage(void)
 {
-	fputs("usage: weekday [YYYY-MM-DD]...\n", stderr);
+	fputs("usage: weekday [YYYY-MM-DD...]\n", stderr);
+}
+
+/**
+ * Prints a string of the format "YYYY-MM-DD: Weekday".
+ */
+void
+dayofweek(struct tm *tm)
+{
+	char linebuf[64];
+	strftime(linebuf, sizeof(linebuf), "%F: %A", tm);
+	puts(linebuf);
+}
+
+/**
+ * Converts a given "YYYY-MM-DD" date to a struct tm.
+ */
+void
+datetotm(char *date, struct tm *tm)
+{
+	char *temp;
+	int year, month, day;
+
+	if ((temp = strtok(date, "-")) == NULL) {
+		goto error;
+	} else {
+		year = atoi(temp);
+	}
+
+	if ((temp = strtok(NULL, "-")) == NULL) {
+		goto error;
+	} else {
+		month = atoi(temp);
+	}
+
+	if ((temp = strtok(NULL, "-")) == NULL) {
+		goto error;
+	} else {
+		day = atoi(temp);
+	}
+
+	if (year == 0 || month == 0 || day == 0) {
+error:
+		fprintf(stderr, "invalid date '%s'\n", date);
+		usage();
+		exit(EXIT_FAILURE);
+	}
+
+	tm->tm_year = year - 1900; /* See ctime(3) */
+	tm->tm_mon  = month - 1;   /* ^^^^^^^^^^^^ */
+	tm->tm_mday = day;
+
+	if (mktime(tm) == (time_t)-1) {
+		perror("mktime failed");
+		exit(EXIT_FAILURE);
+	}
 }
 
 int
 main(int argc, char *argv[])
 {
-	/* No arguments provided */
-	if (argc < 2) {
-		usage();
-		return EXIT_FAILURE;
-	}
+	int c;
 
-	for (int i = 1; i < argc; i++) {
-		struct tm tm = {0};
-		char *temp;
-		int year, month, day;
-		char linebuf[64];
-
-		if ((temp = strtok(argv[i], "-")) == NULL) {
-			goto error;
-		} else {
-			year = atoi(temp);
-		}
-
-		if ((temp = strtok(NULL, "-")) == NULL) {
-			goto error;
-		} else {
-			month = atoi(temp);
-		}
-
-		if ((temp = strtok(NULL, "-")) == NULL) {
-			goto error;
-		} else {
-			day = atoi(temp);
-		}
-
-		if (year == 0 || month == 0 || day == 0) {
-error:
-			fprintf(stderr, "invalid date '%s'\n", argv[i]);
+	while ((c = getopt(argc, argv, "h")) != -1) {
+		switch (c) {
+		case 'h':
+			usage();
+			return EXIT_SUCCESS;
+		case '?':
 			usage();
 			return EXIT_FAILURE;
 		}
+	}
 
-		tm.tm_year = year - 1900; /* See ctime(3) */
-		tm.tm_mon  = month - 1;   /* ^^^^^^^^^^^^ */
-		tm.tm_mday = day;
+	argc -= optind;
+	argv += optind;
 
-		if (mktime(&tm) == (time_t)-1) {
-			perror("mktime failed");
-			return EXIT_FAILURE;
+	if (argc == 0) {
+		const time_t t = time(NULL);
+		dayofweek(localtime(&t));
+	} else {
+		struct tm tm = {0};
+		for (int i = 0; i < argc; i++) {
+			datetotm(argv[i], &tm);
+			dayofweek(&tm);
 		}
-
-		strftime(linebuf, sizeof(linebuf), "%F: %A", &tm);
-		puts(linebuf);
 	}
 
 	return EXIT_SUCCESS;
